@@ -15,4 +15,4 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/carbon_potter.mk
+    $(LOCAL_DIR)/aicp_potter.mk
