@@ -15,9 +15,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/arrow_potter.mk
+    $(LOCAL_DIR)/aicp_potter.mk
 
 COMMON_LUNCH_CHOICES := \
-    arrow_potter-user \
-    arrow_potter-userdebug \
-    arrow_potter-eng
+    aicp_potter-user \
+    aicp_potter-userdebug \
+    aicp_potter-eng
