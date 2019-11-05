@@ -295,7 +295,6 @@ on charger
 on moto-charger
     setprop ro.board.platform msm8953
     trigger firmware_mounts_complete
-    start vendor.charge_only_mode
     start vendor.thermal-com
 
 on property:ro.boot.dualsim=true
@@ -332,11 +331,6 @@ service motosh /vendor/bin/motosh boot
     user compass
     group compass misc input
     oneshot
-
-service vendor.charge_only_mode /system/bin/charge_only_mode
-    user root
-    group graphics system input
-    disabled
 
 service vendor.thermal-com /vendor/bin/thermal-engine --minimode
     class main
