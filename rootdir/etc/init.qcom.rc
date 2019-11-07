@@ -38,6 +38,7 @@ on early-init
     # ZRAM setup
     write /sys/block/zram0/comp_algorithm lz4
     write /proc/sys/vm/page-cluster 0
+    write /sys/block/zram0/max_comp_streams 8
 
 on init
     # Create cgroup mount point for memory
@@ -168,7 +169,7 @@ on boot
     setprop wifi.interface wlan0
 
 #   Define TCP buffer sizes for various networks
-#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
+#   ReadMin, ReadInitial, Read, WriteMin, WriteInitial, WriteMax,
     setprop net.tcp.buffersize.wifi    524288,2097152,4194304,262144,524288,1048576
 
     chmod 0444 /sys/devices/platform/msm_hsusb/gadget/usb_state
@@ -811,7 +812,9 @@ on charger
 
 on property:sys.boot_completed=1
     write /dev/kmsg "Boot completed "
-    setprop sys.io.scheduler bfq
+    setprop sys.io.scheduler anxiety
+    write /sys/block/mmcblk0/queue/scheduler anxiety
+    write /sys/block/mmcblk0rpmb/queue/scheduler anxiety
 
     # scheduler settings
     write /proc/sys/kernel/sched_window_stats_policy 3
@@ -840,6 +843,7 @@ on property:sys.boot_completed=1
     write /proc/sys/kernel/sched_prefer_sync_wakee_to_waker 1
 
     write /sys/class/devfreq/soc:qcom,mincpubw/governor "cpufreq"
+   
 
     write /sys/class/devfreq/soc:qcom,cpubw/governor "bw_hwmon"
     write /sys/class/devfreq/soc:qcom,cpubw/bw_hwmon/io_percent 34
@@ -864,7 +868,7 @@ on property:sys.boot_completed=1
 
     # governor settings
     write /sys/devices/system/cpu/cpu0/online 1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "interactive"
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor "schedutil"
     write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "20000 1401600:40000"
     write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 85
     write /sys/devices/system/cpu/cpufreq/interactive/timer_rate 20000
@@ -911,7 +915,7 @@ on property:sys.boot_completed=1
     write /sys/module/process_reclaim/parameters/swap_opt_eff 30
     write /sys/module/process_reclaim/parameters/pressure_min 50
     write /sys/module/process_reclaim/parameters/per_swap_size 512
-    write /sys/module/lowmemorykiller/parameters/minfree "15360,19200,23040,26880,34415,43737"
+    write /sys/module/lowmemorykiller/parameters/minfree "18432,23040,27648,32256,36864,46080"
 
     #Reset the "read ahead" setting for system patition
     # result: ext4: 32KB, dm_verity:64KB, block layer: 128KB
@@ -925,6 +929,14 @@ on property:sys.boot_completed=1
     write /sys/block/mmcblk0rpmb/bdi/read_ahead_kb 128
     write /sys/block/mmcblk0rpmb/queue/read_ahead_kb 128
     write /sys/block/mmcblk0/queue/iosched/back_seek_penalty 1
+    
+    # Adreno Idler
+    write /sys/module/adreno_idler/parameters/adreno_idler_idleworkload 6000
+    write /sys/module/adreno_idler/parameters/adreno_idler_idlewait 18
+    write /sys/module/adreno_idler/parameters/adreno_idler_downdiffrential 24
+
+    # Set initial GPU freq
+    write /sys/class/kgsl/kgsl-3d0/default_pwrlevel 6
     
     #WDSP FW boot sysfs node used by STHAL
     chown media audio /sys/kernel/wdsp0/boot
